@@ -1,5 +1,11 @@
 function! s:ToggleNERDTreeAndTagbar()
     let w:jumpbacktohere = 1
+    if exists('g:tagbar_left')
+        let g:tagbar_user=g:tagbar_left
+    else
+        let g:tagbar_user=0
+    endif
+    let g:tagbar_left=1
 
     " Detect which plugins are open
     if exists('t:NERDTreeBufName')
@@ -13,23 +19,17 @@ function! s:ToggleNERDTreeAndTagbar()
     if nerdtree_open && tagbar_open
         NERDTreeClose
         TagbarClose
-    elseif nerdtree_open
-        TagbarOpen
-    elseif tagbar_open
-        NERDTree
     else
-        NERDTree
+        if nerdtree_open
+            NERDTreeClose
+        elseif tagbar_open
+            TagbarClose
+        endif
         TagbarOpen
+        NERDTree
     endif
 
-    " Jump back to the original window
-    for window in range(1, winnr('$'))
-        execute window . 'wincmd w'
-        if exists('w:jumpbacktohere')
-            unlet w:jumpbacktohere
-            break
-        endif
-    endfor
+    let g:tagbar_left=g:tagbar_user
+
 endfunction
-"nnoremap <leader>\ :call ToggleNERDTreeAndTagbar()<CR>
 command! -nargs=0 ToggleNERDTreeAndTagbar :call s:ToggleNERDTreeAndTagbar()
